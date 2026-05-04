@@ -1,11 +1,15 @@
 #include <iostream>
-int plus(int x){
-    return x+1;
-}
+#include "bimary_search_tree.h"
 int main(){
-    int x = 0;
-    while (x!=10){
-        std::cout<<x<<"\n";
-        plus(x);
-    }
+    BinarySearchTree<int> tree;
+    tree.insert(10);
+    tree.insert(12);
+    tree.insert(7);
+    tree.insert(5);
+    tree.insert(9);
+    tree.insert(11);
+    tree.output(std::cout);
+    std::cout<< tree.getNumberOfNodes()<<"\n";
+    tree.inorderWalkIterative();
+    tree.walkByLevels();
 }
