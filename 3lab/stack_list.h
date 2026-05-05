@@ -33,7 +33,9 @@ public:
         temp->next_ = head_;
         head_ = temp;
     }
-
+    T top()const{
+        return head_->data_;
+    }
     T pop() override{
         if(!head_){
             throw StackUnderflow();
