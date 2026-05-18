@@ -10,6 +10,8 @@ public:
     HashTable(HashTable&& other) = delete;
     HashTable& operator=(const HashTable& other) = delete;
     HashTable&& operator=(HashTable&& other) = delete;
+
+    size_t insert(double key);
 private:
     enum Status{EMPTY, OCCUPIED, DELETED};
     struct Line{
@@ -25,6 +27,7 @@ private:
     size_t number_; 
 
     size_t hash(const double key)const;
+    size_t probe(size_t hash_value, size_t attemp);
 };
 
 #endif

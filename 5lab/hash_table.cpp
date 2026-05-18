@@ -20,3 +20,20 @@ size_t HashTable::hash(const double key)const{
 
     return static_cast<size_t>(std::floor(fracPart*size_));
 }
+
+size_t HashTable::probe(size_t hash_value, size_t attemp){
+    return (hash_value + attemp*attemp) & size_;
+}
+
+size_t HashTable::insert(double key){
+    size_t hash_value = hash(key);
+    size_t i = 0;
+    while(i<size_){
+        size_t j = probe(hash_value, i);
+        if(table_[j].status_ != OCCUPIED){
+            table_[j].key_ = key;
+            return j;
+        }
+        ++i;
+    }
+}
