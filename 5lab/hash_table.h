@@ -2,11 +2,6 @@
 #define HASH_TABLE_H
 #include <cstddef>
 
-struct Record{
-    double key_;
-    double data_;
-};
-
 class HashTable{
 public:
     HashTable(size_t  size);
@@ -18,12 +13,18 @@ public:
 private:
     enum Status{EMPTY, OCCUPIED, DELETED};
     struct Line{
-        Record* record_;
+        double key_;
+        double data_;
         Status status_;
+        Line():key_(0.0), data_(0.0), status_(EMPTY) {};
+        Line(const double& key, double data): key_(key), 
+        data_(data), status_(OCCUPIED){};
     };
     size_t size_;
-    Line table_;
-    size_t number_;
+    Line* table_ = nullptr;
+    size_t number_; 
+
+    size_t hash(const double key)const;
 };
 
 #endif
