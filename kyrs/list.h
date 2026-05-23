@@ -168,7 +168,7 @@ public:
     size_t size() const { return size_; }
     bool empty() const { return size_ == 0; }
     
-    T get(size_t index) const {
+    T& get(size_t index) const {
         if (index < 0 || index >= size_) {
             throw std::out_of_range("Index out of range");
         }
