@@ -70,19 +70,23 @@ public:
         return reversed;
     }
     
+
     Vector<Vector<int> > findSCC() const {
         int V = vertexCount;
         Vector<bool> visited(V, false);
         Stack<int> finishOrder;
         
+       
         for (int i = 0; i < V; i++) {
             if (!visited[i]) {
                 fillOrder(i, visited, finishOrder);
             }
         }
         
+        
         DirectedGraph reversed = getReverseGraph();
         
+
         Vector<bool> visitedReversed(V, false);
         Vector<Vector<int> > sccs;
         
@@ -99,6 +103,41 @@ public:
         
         return sccs;
     }
+    
+
+    void DFSDirected(int start, std::ostream& out = std::cout) const {
+        if (vertexCount == 0) {
+            throw GraphException("Graph is empty");
+        }
+        if (!hasVertex(start)) {
+            throw GraphException("Start vertex does not exist");
+        }
+        
+        Vector<bool> visited(vertexCount, false);
+        out << "DFS (directed) from vertex " << start << ": ";
+        DFSVisit(start, visited, out);
+        out << std::endl;
+    }
+    
+
+    void printSCC(std::ostream& out = std::cout) const {
+        Vector<Vector<int> > sccs = findSCC();
+        
+        if (sccs.size() == 0) {
+            out << "No strongly connected components found (graph is empty)." << std::endl;
+            return;
+        }
+        
+        out << "Strongly Connected Components (" << sccs.size() << "):" << std::endl;
+        for (size_t i = 0; i < sccs.size(); i++) {
+            out << "  Component " << i + 1 << ": ";
+            for (size_t j = 0; j < sccs[i].size(); j++) {
+                out << sccs[i].at(j);
+                if (j < sccs[i].size() - 1) out << ", ";
+            }
+            out << std::endl;
+        }
+    }
 };
 
-#endif // DIRECTED_GRAPH_H
+#endif 

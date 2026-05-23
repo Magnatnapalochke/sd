@@ -17,7 +17,7 @@ public:
     }
 };
 
-// Абстрактный базовый класс
+
 class Graph {
 protected:
     Vector<List<int> > adjList;
@@ -41,46 +41,44 @@ public:
     
     virtual ~Graph() {}
     
-    // Чисто виртуальные методы
+   
     virtual bool hasEdge(int from, int to) const = 0;
     virtual void addEdge(int from, int to) = 0;
     virtual void removeEdge(int from, int to) = 0;
-    
-    // Виртуальные методы с реализацией
+
     virtual void addVertex() {
         adjList.push_back(List<int>());
         vertexCount++;
     }
     
     virtual void removeVertex(int v) {
-    if (!hasVertex(v)) {
-        throw GraphException("Vertex does not exist");
-    }
-    
-    // 1. Удаляем все рёбра, ведущие к v
-    for (int i = 0; i < vertexCount; i++) {
-        adjList[i].remove(v);
-    }
-    
-    // 2. Удаляем список смежности вершины v
-    adjList.erase(v);
-    
-    // 3. ОБНОВЛЯЕМ ИНДЕКСЫ! (важно!)
-    for (int i = v; i < vertexCount - 1; i++) {
-        // Создаём новый список с обновлёнными индексами
-        List<int> newList;
-        for (size_t j = 0; j < adjList[i].size(); j++) {
-            int neighbor = adjList[i].get(j);
-            if (neighbor > v) {
-                newList.push_back(neighbor - 1);
-            } else {
-                newList.push_back(neighbor);
-            }
+        if (!hasVertex(v)) {
+            throw GraphException("Vertex does not exist");
         }
-        adjList[i] = newList;
-    }
-    
-    vertexCount--;
+        
+
+        for (int i = 0; i < vertexCount; i++) {
+            adjList[i].remove(v);
+        }
+        
+
+        adjList.erase(v);
+        
+
+        for (int i = v; i < vertexCount - 1; i++) {
+            List<int> newList;
+            for (size_t j = 0; j < adjList[i].size(); j++) {
+                int neighbor = adjList[i].get(j);
+                if (neighbor > v) {
+                    newList.push_back(neighbor - 1);
+                } else {
+                    newList.push_back(neighbor);
+                }
+            }
+            adjList[i] = newList;
+        }
+        
+        vertexCount--;
     }
     
     virtual void DFS(int start, std::ostream& out = std::cout) const {
@@ -94,7 +92,7 @@ public:
         out << std::endl;
     }
     
-    // Общие методы
+
     bool isEmpty() const {
         return vertexCount == 0;
     }
@@ -119,4 +117,4 @@ public:
     }
 };
 
-#endif // GRAPH_H
+#endif 

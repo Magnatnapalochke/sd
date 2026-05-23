@@ -63,6 +63,21 @@ public:
         
         return components;
     }
+    
+
+    void DFSUndirected(int start, std::ostream& out = std::cout) const {
+        if (vertexCount == 0) {
+            throw GraphException("Graph is empty");
+        }
+        if (!hasVertex(start)) {
+            throw GraphException("Start vertex does not exist");
+        }
+        
+        Vector<bool> visited(vertexCount, false);
+        out << "DFS (undirected) from vertex " << start << ": ";
+        DFSVisit(start, visited, out);
+        out << std::endl;
+    }
 };
 
-#endif // UNDIRECTED_GRAPH_H
+#endif 
