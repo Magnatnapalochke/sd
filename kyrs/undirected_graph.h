@@ -2,82 +2,105 @@
 #define UNDIRECTED_GRAPH_H
 
 #include "graph.h"
-#include "stack.h"
 
 class UndirectedGraph : public Graph {
+private:
+    void DFSVisit(int v, Vector<bool>& visited, std::ostream& out) const {
+        visited[v] = true;
+        out << vertices_[v] << " ";
+        
+        const Vector<int>& neighbors = adjList_[v];
+        for (size_t i = 0; i < neighbors.size(); ++i) {
+            int neighbor = neighbors[i];
+            if (!visited[neighbor]) {
+                DFSVisit(neighbor, visited, out);
+            }
+        }
+    }
+    
 public:
     UndirectedGraph() : Graph(false) {}
     
     bool hasEdge(int from, int to) const override {
-        if (!hasVertex(from) || !hasVertex(to)) {
-            return false;
+        int fromIdx = findVertexIndex(from);
+        int toIdx = findVertexIndex(to);
+        if (fromIdx == -1 || toIdx == -1) return false;
+        
+        const Vector<int>& neighbors = adjList_[fromIdx];
+        for (size_t i = 0; i < neighbors.size(); ++i) {
+            if (neighbors[i] == toIdx) return true;
         }
-        return adjList[from].contains(to);
+        return false;
     }
     
     void addEdge(int from, int to) override {
-        if (!hasVertex(from) || !hasVertex(to)) {
-            throw GraphException("One or both vertices do not exist");
+        int fromIdx = findVertexIndex(from);
+        int toIdx = findVertexIndex(to);
+        
+        if (fromIdx == -1) {
+            addVertex(from);
+            fromIdx = findVertexIndex(from);
         }
-        if (!hasEdge(from, to)) {
-            adjList[from].push_back(to);
-            adjList[to].push_back(from);
+        if (toIdx == -1) {
+            addVertex(to);
+            toIdx = findVertexIndex(to);
         }
+        
+        // Проверяем, не существует ли уже ребро
+        Vector<int>& neighborsFrom = adjList_[fromIdx];
+        Vector<int>& neighborsTo = adjList_[toIdx];
+        
+        for (size_t i = 0; i < neighborsFrom.size(); ++i) {
+            if (neighborsFrom[i] == toIdx) return;
+        }
+        
+        // Добавляем в обе стороны
+        neighborsFrom.push_back(toIdx);
+        neighborsTo.push_back(fromIdx);
     }
     
     void removeEdge(int from, int to) override {
-        if (!hasVertex(from) || !hasVertex(to)) {
-            throw GraphException("One or both vertices do not exist");
-        }
-        adjList[from].remove(to);
-        adjList[to].remove(from);
-    }
-    
-    Vector<Vector<int> > findConnectedComponents() const {
-        Vector<bool> visited(vertexCount, false);
-        Vector<Vector<int> > components;
+        int fromIdx = findVertexIndex(from);
+        int toIdx = findVertexIndex(to);
         
-        for (int i = 0; i < vertexCount; i++) {
-            if (!visited[i]) {
-                Vector<int> component;
-                Stack<int> st;
-                st.push(i);
-                visited[i] = true;
-                
-                while (!st.empty()) {
-                    int v = st.top();
-                    st.pop();
-                    component.push_back(v);
-                    
-                    for (size_t j = 0; j < adjList[v].size(); j++) {
-                        int neighbor = adjList[v].get(j);
-                        if (!visited[neighbor]) {
-                            visited[neighbor] = true;
-                            st.push(neighbor);
-                        }
-                    }
-                }
-                components.push_back(component);
+        if (fromIdx == -1 || toIdx == -1) {
+            throw GraphException("Vertex not found");
+        }
+        
+        Vector<int>& neighborsFrom = adjList_[fromIdx];
+        Vector<int>& neighborsTo = adjList_[toIdx];
+        
+        for (size_t i = 0; i < neighborsFrom.size(); ++i) {
+            if (neighborsFrom[i] == toIdx) {
+                neighborsFrom.erase(i);
+                break;
             }
         }
         
-        return components;
+        for (size_t i = 0; i < neighborsTo.size(); ++i) {
+            if (neighborsTo[i] == fromIdx) {
+                neighborsTo.erase(i);
+                break;
+            }
+        }
     }
     
-
+    // Обход в глубину для неориентированного графа
     void DFSUndirected(int start, std::ostream& out = std::cout) const {
-        if (vertexCount == 0) {
+        if (vertexCount_ == 0) {
             throw GraphException("Graph is empty");
         }
         if (!hasVertex(start)) {
             throw GraphException("Start vertex does not exist");
         }
         
-        Vector<bool> visited(vertexCount, false);
+        int startIdx = findVertexIndex(start);
+        Vector<bool> visited(vertexCount_, false);
+        
         out << "DFS (undirected) from vertex " << start << ": ";
-        DFSVisit(start, visited, out);
+        DFSVisit(startIdx, visited, out);
         out << std::endl;
     }
 };
 
-#endif 
+#endif // UNDIRECTED_GRAPH_H

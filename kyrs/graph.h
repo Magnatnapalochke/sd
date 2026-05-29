@@ -2,119 +2,130 @@
 #define GRAPH_H
 
 #include "vector.h"
-#include "list.h"
+#include "stack.h"
 #include <iostream>
 #include <string>
 #include <stdexcept>
 
 class GraphException : public std::exception {
 private:
-    std::string message;
+    std::string message_;
 public:
-    GraphException(const std::string& msg) : message(msg) {}
+    GraphException(const std::string& msg) : message_(msg) {}
     const char* what() const noexcept override {
-        return message.c_str();
+        return message_.c_str();
     }
 };
-
 
 class Graph {
 protected:
-    Vector<List<int> > adjList;
-    bool isDirected;
-    int vertexCount;
+    Vector<int> vertices_;           // имена вершин
+    Vector<Vector<int>> adjList_;    // список смежности (только индексы)
+    int vertexCount_;
+    bool isDirected_;
     
-    void DFSVisit(int v, Vector<bool>& visited, std::ostream& out) const {
-        visited[v] = true;
-        out << v << " ";
-        
-        for (size_t i = 0; i < adjList[v].size(); i++) {
-            int neighbor = adjList[v].get(i);
-            if (!visited[neighbor]) {
-                DFSVisit(neighbor, visited, out);
-            }
+    // Поиск индекса по имени вершины
+    int findVertexIndex(int vertex) const {
+        for (size_t i = 0; i < vertices_.size(); ++i) {
+            if (vertices_[i] == vertex) return static_cast<int>(i);
         }
+        return -1;
     }
     
 public:
-    Graph(bool directed = true) : isDirected(directed), vertexCount(0) {}
+    Graph(bool directed = true) : vertexCount_(0), isDirected_(directed) {}
     
     virtual ~Graph() {}
     
-   
-    virtual bool hasEdge(int from, int to) const = 0;
-    virtual void addEdge(int from, int to) = 0;
-    virtual void removeEdge(int from, int to) = 0;
-
-    virtual void addVertex() {
-        adjList.push_back(List<int>());
-        vertexCount++;
-    }
-    
-    virtual void removeVertex(int v) {
-        if (!hasVertex(v)) {
-            throw GraphException("Vertex does not exist");
-        }
-        
-
-        for (int i = 0; i < vertexCount; i++) {
-            adjList[i].remove(v);
-        }
-        
-
-        adjList.erase(v);
-        
-
-        for (int i = v; i < vertexCount - 1; i++) {
-            List<int> newList;
-            for (size_t j = 0; j < adjList[i].size(); j++) {
-                int neighbor = adjList[i].get(j);
-                if (neighbor > v) {
-                    newList.push_back(neighbor - 1);
-                } else {
-                    newList.push_back(neighbor);
-                }
-            }
-            adjList[i] = newList;
-        }
-        
-        vertexCount--;
-    }
-    
-    virtual void DFS(int start, std::ostream& out = std::cout) const {
-        if (!hasVertex(start)) {
-            throw GraphException("Start vertex does not exist");
-        }
-        
-        Vector<bool> visited(vertexCount, false);
-        out << "DFS starting from vertex " << start << ": ";
-        DFSVisit(start, visited, out);
-        out << std::endl;
-    }
-    
-
     bool isEmpty() const {
-        return vertexCount == 0;
+        return vertexCount_ == 0;
     }
     
-    bool hasVertex(int v) const {
-        return v >= 0 && v < vertexCount;
+    bool hasVertex(int vertex) const {
+        return findVertexIndex(vertex) != -1;
     }
     
     int getVertexCount() const {
-        return vertexCount;
+        return vertexCount_;
     }
     
-    const List<int>& getAdjList(int v) const {
-        if (!hasVertex(v)) {
-            throw GraphException("Vertex does not exist");
+    const Vector<int>& getVertices() const {
+        return vertices_;
+    }
+    
+    int getVertexName(int index) const {
+        if (index < 0 || index >= vertexCount_) {
+            throw GraphException("Index out of range");
         }
-        return adjList[v];
+        return vertices_[index];
     }
     
-    bool isGraphDirected() const {
-        return isDirected;
+    // Добавление вершины
+    void addVertex(int vertex) {
+        if (hasVertex(vertex)) return;
+        
+        vertices_.push_back(vertex);
+        adjList_.push_back(Vector<int>());
+        vertexCount_++;
+    }
+    
+    // Удаление вершины
+    void removeVertex(int vertex) {
+        int idx = findVertexIndex(vertex);
+        if (idx == -1) {
+            throw GraphException("Vertex not found");
+        }
+        
+        // Удаляем все рёбра, ведущие к idx
+        for (size_t i = 0; i < adjList_.size(); ++i) {
+            Vector<int>& neighbors = adjList_[i];
+            for (size_t j = 0; j < neighbors.size();) {
+                if (neighbors[j] == idx) {
+                    neighbors.erase(j);
+                } else {
+                    if (neighbors[j] > idx) {
+                        neighbors[j]--;
+                    }
+                    ++j;
+                }
+            }
+        }
+        
+        // Удаляем вершину
+        adjList_.erase(idx);
+        vertices_.erase(idx);
+        vertexCount_--;
+    }
+    
+    // Виртуальные методы
+    virtual bool hasEdge(int from, int to) const = 0;
+    virtual void addEdge(int from, int to) = 0;
+    virtual void removeEdge(int from, int to) = 0;
+    
+    // Получение списка соседей вершины
+    const Vector<int>& getNeighbors(int vertex) const {
+        int idx = findVertexIndex(vertex);
+        if (idx == -1) throw GraphException("Vertex not found");
+        return adjList_[idx];
+    }
+    
+    // Вывод графа
+    virtual void print() const {
+        std::cout << "Vertices: ";
+        for (size_t i = 0; i < vertices_.size(); ++i) {
+            std::cout << vertices_[i] << " ";
+        }
+        std::cout << std::endl;
+        
+        for (size_t i = 0; i < vertices_.size(); ++i) {
+            std::cout << vertices_[i] << " -> ";
+            const Vector<int>& neighbors = adjList_[i];
+            for (size_t j = 0; j < neighbors.size(); ++j) {
+                std::cout << vertices_[neighbors[j]] << " ";
+            }
+            std::cout << std::endl;
+        }
     }
 };
 
-#endif 
+#endif // GRAPH_H

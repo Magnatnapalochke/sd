@@ -1,29 +1,31 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#include <stdexcept>
+
 template<typename T>
-class Vector{
+class Vector {
 private:
     T* data_;
     size_t size_;
     size_t capacity_;
-
-    void resize(){
-        size_t new_capacity = (capacity_ == 0)? 1 : (capacity_ *2);
+    
+    void resize() {
+        size_t new_capacity = (capacity_ == 0) ? 1 : capacity_ * 2;
         T* new_data = new T[new_capacity];
-        for(size_t i = 0; i<size_; ++i){
+        for (size_t i = 0; i < size_; ++i) {
             new_data[i] = data_[i];
         }
-
         delete[] data_;
         data_ = new_data;
         capacity_ = new_capacity;
     }
+    
 public:
-    Vector(): data_(nullptr), capacity_(0), size_(0){}
-
+    Vector() : data_(nullptr), size_(0), capacity_(0) {}
+    
     Vector(size_t count, const T& value = T()) 
-    : data_(new T[count]), capacity_(count), size_(count) {
+        : data_(new T[count]), capacity_(count), size_(count) {
         for (size_t i = 0; i < count; ++i) {
             data_[i] = value;
         }
@@ -61,6 +63,20 @@ public:
         return data_[index];
     }
     
+    T& get(size_t index) {
+        if (index >= size_) {
+            throw std::out_of_range("Index out of range");
+        }
+        return data_[index];
+    }
+    
+    const T& get(size_t index) const {
+        if (index >= size_) {
+            throw std::out_of_range("Index out of range");
+        }
+        return data_[index];
+    }
+    
     void push_back(const T& value) {
         if (size_ >= capacity_) {
             resize();
@@ -91,25 +107,9 @@ public:
         capacity_ = 0;
     }
     
-    T& at(size_t index) {
-        if (index >= size_) {
-            throw std::out_of_range("Index out of range");
-        }
-        return data_[index];
-    }
-    
-    const T& at(size_t index) const {
-        if (index >= size_) {
-            throw std::out_of_range("Index out of range");
-        }
-        return data_[index];
-    }
-    
     size_t size() const { return size_; }
     size_t capacity() const { return capacity_; }
     bool empty() const { return size_ == 0; }
-
 };
 
-
-#endif
+#endif // VECTOR_H
