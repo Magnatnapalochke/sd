@@ -9,7 +9,7 @@ public:
     HashTable(const HashTable& other) = delete;
     HashTable(HashTable&& other) = delete;
     HashTable& operator=(const HashTable& other) = delete;
-    HashTable&& operator=(HashTable&& other) = delete;
+    HashTable& operator=(HashTable&& other) = delete;
 
     size_t insert(double key);
     void resize();    size_t search(double key)const;

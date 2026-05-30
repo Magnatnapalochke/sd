@@ -38,6 +38,7 @@ void testRemoveAndSearch() {
     ht.insert(1.1);
     ht.insert(2.2);
     ht.insert(3.3);
+    ht.insert(1.1);
     
     assert(ht.remove(2.2) == true);
     assert(ht.search(2.2) == 10);

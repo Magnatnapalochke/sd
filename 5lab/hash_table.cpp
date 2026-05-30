@@ -37,10 +37,10 @@ size_t HashTable::insert(double key){
         if(table_[j].status_ == OCCUPIED && table_[j].key_ == key){
             return j;
         }
-        if(table_[j].status_ == DELETED){
+        if(table_[j].status_ == DELETED && deleted == size_){
             deleted = j;
         }
-        if(table_[j].status_ == EMPTY){
+            if(table_[j].status_ == EMPTY){
             size_t pos = (deleted == size_)? j : deleted;
             table_[pos].key_ = key;
             table_[pos].status_ = OCCUPIED;
