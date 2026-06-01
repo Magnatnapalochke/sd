@@ -3,6 +3,8 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <algorithm>
+#include <functional>
 
 struct Point{
     int x, y;
@@ -88,7 +90,20 @@ bool isOddVertexCount(const Polygon& p){
     return p.points.size() % 2 !=0;
 }
 
+double area(const Polygon& poly){
+    if(poly.points.size() < 3) return 0.0;
 
+    double sum = 0.0;
+    size_t numPoly = poly.points.size();
+
+    for(size_t i = 0; i<numPoly; ++i){
+        
+    }
+}
+
+double areaIf(const Polygon& p, std::function<bool(const Polygon&)> pred){
+    return pred(p) ? area(p), 0.0;
+}
 
 int main(int argc, char* argv[]){
     if(argc<2){
